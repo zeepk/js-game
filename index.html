@@ -17,9 +17,9 @@
 			const randomInt = (min, max) => {
 				return Math.random() * (max - min) + min;
 			};
-			const speed = 5;
+			const speed = 20;
 			const treeCount = 20;
-			const fireballCount = 1;
+			const fireballCount = 5;
 			const width = document.getElementById('canvas').clientWidth;
 			const height = document.getElementById('canvas').clientHeight;
 			const bodyWidth = document.getElementById('body').clientWidth;
@@ -29,7 +29,10 @@
 			const treeArray = [];
 			var keyState = {};
 			const canvas = document.getElementById('canvas').getBoundingClientRect();
-			for (var i = 0; i < fireballCount; i++) {
+			const fireballArray = [];
+
+			// TODO: have create accept/use speed, spawn coords and vector coords
+			const createFireball = (speed) => {
 				const fireball = document.createElement('img');
 				fireball.className = 'fireball';
 				fireball.src =
@@ -37,20 +40,15 @@
 				fireball.style.left = randomInt(canvas.left, canvas.right - 100) + 'px';
 				fireball.style.top = randomInt(canvas.top, canvas.bottom - 100) + 'px';
 				document.getElementById('body').appendChild(fireball);
-			}
-			const fireballs = document.getElementsByClassName('fireball');
-			const fireballArray = new Array(fireballCount)
-				.fill(null)
-				.map((fireball, index) => {
-					const fireballRect = fireballs[index].getBoundingClientRect();
-					return {
-						left: fireballRect.left,
-						right: fireballRect.right,
-						top: fireballRect.top,
-						bottom: fireballRect.bottom,
-					};
+				const fireballRect = fireball.getBoundingClientRect();
+				fireballArray.push({
+					left: fireballRect.left,
+					right: fireballRect.right,
+					top: fireballRect.top,
+					bottom: fireballRect.bottom,
 				});
-			console.log(fireballArray);
+			};
+
 			// document.getElementById('canvas').style.width = width + 'px';
 			// document.getElementById('canvas').style.height = height + 'px';
 			window.addEventListener(
@@ -81,50 +79,86 @@
 			var x = width / 2;
 			var y = height / 2;
 			var hit = false;
+			var prevHit = false;
+			var frozen = false;
+			var frameCtr = 0;
+			var fireballSpeed = -10;
+			var fireballs = {};
 			(function gameLoop() {
+				fireballs = document.getElementsByClassName('fireball');
+				frameCtr++;
 				//check to see if we were hit by a fireball
-				// sprite x -> x+100 && y -> y-100
-				// fireball left -> right && top -> bottom
-				console.log(hit);
-				fireballArray.forEach((fireball) => {
+				prevHit = hit;
+				hit = false;
+				fireballArray.forEach((fireball, index) => {
+					var left = randomInt(fireballSpeed, 0);
+					var top = randomInt(fireballSpeed, 0);
+					if (index % 4 === 0) {
+						left = Math.abs(left);
+					} else if (index % 3 === 0) {
+						left = Math.abs(left);
+						top = Math.abs(top);
+					} else if (index % 2 === 0) {
+						top = Math.abs(top);
+					}
+					fireball.left += left;
+					fireball.right += left;
+					fireball.top += top;
+					fireball.bottom += top;
+					fireballs[index].style.left = fireball.left + 'px';
+					fireballs[index].style.top = fireball.top + 'px';
 					if (
-						(x <= fireball.left <= x + 100 || x <= fireball.right <= x + 100) &&
-						(y <= fireball.top <= y + 100 || y <= fireball.bottom <= y + 100)
-
-						// (x >= fireball.left &&
-						// 	x <= fireball.right &&
-						// 	y <= fireball.bottom &&
-						// 	y >= fireball.top) ||
-						// (x + 100 >= fireball.left &&
-						// 	x + 100 <= fireball.right &&
-						// 	y + 100 <= fireball.bottom &&
-						// 	y + 100 >= fireball.top)
+						((x <= fireball.left && fireball.left <= x + 100) ||
+							(x <= fireball.right && fireball.right <= x + 100)) &&
+						((y <= fireball.top && fireball.top <= y + 100) ||
+							(y <= fireball.bottom && fireball.bottom <= y + 100))
 					) {
 						hit = true;
 					}
 				});
+				if (hit && !prevHit) {
+					frozen = true;
+					sprite.style.visibility = 'hidden';
+					setTimeout(() => {
+						sprite.style.visibility = 'visible';
+						setTimeout(() => {
+							sprite.style.visibility = 'hidden';
+							setTimeout(() => {
+								sprite.style.visibility = 'visible';
+								frozen = false;
+							}, 100);
+						}, 100);
+					}, 100);
+				}
 
-				if ((keyState[37] || keyState[65]) && x > canvas.left) {
-					// left
-					x -= speed;
+				// move, as long as we aren't frozen/hit
+				if (!frozen) {
+					if ((keyState[37] || keyState[65]) && x > canvas.left) {
+						// left
+						x -= speed;
+					}
+					if (
+						(keyState[39] || keyState[68]) &&
+						x < canvas.right - sprite.clientWidth
+					) {
+						// right
+						x += speed;
+					}
+					if ((keyState[38] || keyState[87]) && y > canvas.top) {
+						// up
+						y -= speed;
+					}
+					if (
+						(keyState[40] || keyState[83]) &&
+						y < canvas.bottom - sprite.clientHeight
+					) {
+						// down
+						y += speed;
+					}
 				}
-				if (
-					(keyState[39] || keyState[68]) &&
-					x < canvas.right - sprite.clientWidth
-				) {
-					// right
-					x += speed;
-				}
-				if ((keyState[38] || keyState[87]) && y > canvas.top) {
-					// up
-					y -= speed;
-				}
-				if (
-					(keyState[40] || keyState[83]) &&
-					y < canvas.bottom - sprite.clientHeight
-				) {
-					// down
-					y += speed;
+				if (frameCtr % 100 === 0) {
+					console.log('Create at ' + frameCtr);
+					createFireball(0);
 				}
 
 				document.getElementById('sprite').style.left = x + 'px';

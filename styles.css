@@ -12,6 +12,7 @@ body {
 	position: absolute;
 	right: auto;
 	bottom: auto;
+	visibility: visible;
 	/* z-index: 1000; */
 }
 #canvas {
