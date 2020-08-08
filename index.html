@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="stylesheet" href="styles.css" />
+		<title>Any Gamers in the Chat? 🤔</title>
+	</head>
+	<body id="body">
+		<div id="canvas">
+			<!-- <div id="box"></div> -->
+			<img
+				src="https://www.piskelapp.com/static/resources/home/features/feature-open-source@2x.gif"
+				alt=""
+				id="sprite"
+			/>
+		</div>
+		<script>
+			console.log(document.getElementById('body').clientWidth)
+			console.log(document.getElementById('body').clientHeight)
+			const speed = 10
+			const width = document.getElementById('body').clientWidth
+			const height = document.getElementById('body').clientHeight
+			var keyState = {}
+			const tile_grid = []
+			for (var i = 0; i < (height - 200) / 200; i++) {
+				tile_grid.push([])
+				for (var j = 0; j < (width - 200) / 200; j++) {
+					tile_grid[i][j] = `${i * 200} x ${j * 200}`
+					var tile = document.createElement('div')
+					tile.className = 'tile'
+					tile.style.left = j * 200 + 'px'
+					tile.style.top = i * 200 + 'px'
+					tile.style.width = 200 + 'px'
+					tile.style.height = 200 + 'px'
+					tile.style.position = 'absolute'
+					tile.style.backgroundImage = "url('assets/grass_tile.png')"
+					tile.style.zIndex = -2
+					document.getElementById('canvas').appendChild(tile)
+				}
+			}
+			for (var i = 0; i < height / 200; i++) {
+				tile_grid.push([])
+				for (var j = 0; j < width / 200; j++) {
+					const tree = Math.random() < 0.7
+					if (tree) {
+						const randomOffset = Math.random() * (200 - 0) + 0
+						tile_grid[i][j] = `${i * 200} x ${j * 200}`
+						var tile = document.createElement('img')
+						tile.src = 'assets/props_tree_goup.png'
+						tile.style.left = j * 200 - randomOffset + 'px'
+						tile.style.top = i * 200 - randomOffset + 'px'
+						tile.classList.add('tree')
+						document.getElementById('canvas').appendChild(tile)
+					}
+				}
+			}
+			console.table(tile_grid)
+			document.getElementById('canvas').style.width = width + 'px'
+			document.getElementById('canvas').style.height = height + 'px'
+			const sprite = document.getElementById('sprite')
+			window.addEventListener(
+				'keydown',
+				function (e) {
+					keyState[e.keyCode || e.which] = true
+				},
+				true
+			)
+
+			window.addEventListener(
+				'keyup',
+				function (e) {
+					keyState[e.keyCode || e.which] = false
+				},
+				true
+			)
+			var x = width / 2
+			var y = height / 2
+			function gameLoop() {
+				if ((keyState[37] || keyState[65]) && x > 0) {
+					// left
+					x -= 10
+				}
+				if ((keyState[39] || keyState[68]) && x < width - sprite.clientWidth) {
+					// right
+					x += 10
+				}
+				if ((keyState[38] || keyState[87]) && y > 0) {
+					// up
+					y -= 10
+				}
+				if (
+					(keyState[40] || keyState[83]) &&
+					y < height - sprite.clientHeight
+				) {
+					// down
+					y += 10
+				}
+
+				document.getElementById('sprite').style.left = x + 'px'
+				document.getElementById('sprite').style.top = y + 'px'
+				setTimeout(gameLoop, 10)
+			}
+
+			gameLoop()
+			const moveThing = (element, pixels, direction) => {
+				var ctr = 0
+				const sign = pixels >= 0
+				var myVar = setInterval(() => {
+					console.log(ctr)
+					element.style[direction] =
+						parseInt(element.style[direction].slice(0, -2)) +
+						(sign ? 5 : -5) +
+						'px'
+					ctr++
+					if (ctr === Math.abs(pixels)) {
+						clearInterval(myVar)
+					}
+				}, 1)
+				console.log(element.style[direction])
+			}
+		</script>
+	</body>
+</html>
