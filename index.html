@@ -9,94 +9,128 @@
 		<div id="canvas">
 			<img
 				src="https://www.piskelapp.com/static/resources/home/features/feature-open-source@2x.gif"
-				alt=""
+				alt="Sprite"
 				id="sprite"
 			/>
 		</div>
 		<script>
-			const speed = 10
-			const width = document.getElementById('body').clientWidth
-			const height = document.getElementById('body').clientHeight
-			var keyState = {}
-			const tile_grid = []
-			for (var i = 0; i < (height - 200) / 200; i++) {
-				tile_grid.push([])
-				for (var j = 0; j < (width - 200) / 200; j++) {
-					tile_grid[i][j] = `${i * 200} x ${j * 200}`
-					var tile = document.createElement('div')
-					tile.className = 'tile'
-					tile.style.left = j * 200 + 'px'
-					tile.style.top = i * 200 + 'px'
-					tile.style.width = 200 + 'px'
-					tile.style.height = 200 + 'px'
-					tile.style.position = 'absolute'
-					tile.style.backgroundImage = "url('assets/grass_tile.png')"
-					tile.style.zIndex = -2
-					document.getElementById('canvas').appendChild(tile)
-				}
+			const randomInt = (min, max) => {
+				return Math.random() * (max - min) + min;
+			};
+			const speed = 5;
+			const treeCount = 20;
+			const fireballCount = 1;
+			const width = document.getElementById('canvas').clientWidth;
+			const height = document.getElementById('canvas').clientHeight;
+			const bodyWidth = document.getElementById('body').clientWidth;
+			const bodyHeight = document.getElementById('body').clientHeight;
+
+			const sprite = document.getElementById('sprite');
+			const treeArray = [];
+			var keyState = {};
+			const canvas = document.getElementById('canvas').getBoundingClientRect();
+			for (var i = 0; i < fireballCount; i++) {
+				const fireball = document.createElement('img');
+				fireball.className = 'fireball';
+				fireball.src =
+					'https://thumbs.gfycat.com/SlipperyObedientBasil-max-1mb.gif';
+				fireball.style.left = randomInt(canvas.left, canvas.right - 100) + 'px';
+				fireball.style.top = randomInt(canvas.top, canvas.bottom - 100) + 'px';
+				document.getElementById('body').appendChild(fireball);
 			}
-			for (var i = 0; i < height / 200; i++) {
-				tile_grid.push([])
-				for (var j = 0; j < width / 200; j++) {
-					const tree = Math.random() < 0.7
-					if (tree) {
-						const randomOffset = Math.random() * (200 - 0) + 0
-						tile_grid[i][j] = `${i * 200} x ${j * 200}`
-						var tile = document.createElement('img')
-						tile.src = 'assets/props_tree_goup.png'
-						tile.style.left = j * 200 - randomOffset + 'px'
-						tile.style.top = i * 200 - randomOffset + 'px'
-						tile.classList.add('tree')
-						document.getElementById('canvas').appendChild(tile)
-					}
-				}
-			}
-			console.table(tile_grid)
-			document.getElementById('canvas').style.width = width + 'px'
-			document.getElementById('canvas').style.height = height + 'px'
-			const sprite = document.getElementById('sprite')
+			const fireballs = document.getElementsByClassName('fireball');
+			const fireballArray = new Array(fireballCount)
+				.fill(null)
+				.map((fireball, index) => {
+					const fireballRect = fireballs[index].getBoundingClientRect();
+					return {
+						left: fireballRect.left,
+						right: fireballRect.right,
+						top: fireballRect.top,
+						bottom: fireballRect.bottom,
+					};
+				});
+			console.log(fireballArray);
+			// document.getElementById('canvas').style.width = width + 'px';
+			// document.getElementById('canvas').style.height = height + 'px';
 			window.addEventListener(
 				'keydown',
 				function (e) {
-					keyState[e.keyCode || e.which] = true
+					keyState[e.keyCode || e.which] = true;
 				},
 				true
-			)
+			);
 
 			window.addEventListener(
 				'keyup',
 				function (e) {
-					keyState[e.keyCode || e.which] = false
+					keyState[e.keyCode || e.which] = false;
 				},
 				true
-			)
-			var x = width / 2
-			var y = height / 2
-			;(function gameLoop() {
-				if ((keyState[37] || keyState[65]) && x > 0) {
+			);
+			// creating trees
+			for (var i = 0; i < treeCount; i++) {
+				const tree = document.createElement('img');
+				tree.className = 'tree';
+				tree.src = 'assets/props_tree_goup.png';
+				tree.style.left = randomInt(canvas.left, canvas.right - 100) + 'px';
+				tree.style.top = randomInt(canvas.top, canvas.bottom - 100) + 'px';
+				treeArray.push(tree);
+				document.getElementById('body').appendChild(tree);
+			}
+			var x = width / 2;
+			var y = height / 2;
+			var hit = false;
+			(function gameLoop() {
+				//check to see if we were hit by a fireball
+				// sprite x -> x+100 && y -> y-100
+				// fireball left -> right && top -> bottom
+				console.log(hit);
+				fireballArray.forEach((fireball) => {
+					if (
+						(x <= fireball.left <= x + 100 || x <= fireball.right <= x + 100) &&
+						(y <= fireball.top <= y + 100 || y <= fireball.bottom <= y + 100)
+
+						// (x >= fireball.left &&
+						// 	x <= fireball.right &&
+						// 	y <= fireball.bottom &&
+						// 	y >= fireball.top) ||
+						// (x + 100 >= fireball.left &&
+						// 	x + 100 <= fireball.right &&
+						// 	y + 100 <= fireball.bottom &&
+						// 	y + 100 >= fireball.top)
+					) {
+						hit = true;
+					}
+				});
+
+				if ((keyState[37] || keyState[65]) && x > canvas.left) {
 					// left
-					x -= 10
+					x -= speed;
 				}
-				if ((keyState[39] || keyState[68]) && x < width - sprite.clientWidth) {
+				if (
+					(keyState[39] || keyState[68]) &&
+					x < canvas.right - sprite.clientWidth
+				) {
 					// right
-					x += 10
+					x += speed;
 				}
-				if ((keyState[38] || keyState[87]) && y > 0) {
+				if ((keyState[38] || keyState[87]) && y > canvas.top) {
 					// up
-					y -= 10
+					y -= speed;
 				}
 				if (
 					(keyState[40] || keyState[83]) &&
-					y < height - sprite.clientHeight
+					y < canvas.bottom - sprite.clientHeight
 				) {
 					// down
-					y += 10
+					y += speed;
 				}
 
-				document.getElementById('sprite').style.left = x + 'px'
-				document.getElementById('sprite').style.top = y + 'px'
-				setTimeout(gameLoop, 10)
-			})()
+				document.getElementById('sprite').style.left = x + 'px';
+				document.getElementById('sprite').style.top = y + 'px';
+				setTimeout(gameLoop, 10);
+			})();
 		</script>
 	</body>
 </html>
