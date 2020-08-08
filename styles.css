@@ -3,6 +3,7 @@ body {
 	width: 100vw;
 	margin: 0;
 	background-image: url('assets/grass_tile.png');
+	overflow: hidden;
 }
 #sprite {
 	height: 100px;
@@ -12,5 +13,5 @@ body {
 }
 .tree {
 	position: absolute;
-	width: 100px;
+	width: 150px;
 }
