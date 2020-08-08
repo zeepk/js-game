@@ -4,18 +4,6 @@ body {
 	margin: 0;
 	background-image: url('assets/grass_tile.png');
 }
-#canvas {
-	/* border: 1px solid red; */
-}
-#box {
-	position: absolute;
-	height: 100px;
-	width: 100px;
-	background-color: palevioletred;
-	border: 5px solid black;
-	right: auto;
-	bottom: auto;
-}
 #sprite {
 	height: 100px;
 	position: absolute;
