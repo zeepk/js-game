@@ -7,6 +7,12 @@
 	</head>
 	<body id="body">
 		<div id="canvas">
+			<div id="toolbar"></div>
+			<div id="overlay">
+				<div id="win-lose"></div>
+				<div id="end-score"></div>
+				<button id="playAgain" onclick="playAgain()">Play Again</button>
+			</div>
 			<img
 				src="https://www.piskelapp.com/static/resources/home/features/feature-open-source@2x.gif"
 				alt="Sprite"
@@ -14,17 +20,22 @@
 			/>
 		</div>
 		<script>
+			const playAgain = () => {
+				restart = true;
+			};
 			const randomInt = (min, max) => {
 				return Math.random() * (max - min) + min;
 			};
+			var restart = false;
 			const speed = 20;
 			const treeCount = 20;
-			const fireballCount = 5;
 			const fireballLifetime = 2000;
 			const width = document.getElementById('canvas').clientWidth;
 			const height = document.getElementById('canvas').clientHeight;
 			const bodyWidth = document.getElementById('body').clientWidth;
 			const bodyHeight = document.getElementById('body').clientHeight;
+			const winLose = document.getElementById('win-lose');
+			const endScore = document.getElementById('end-score');
 
 			const sprite = document.getElementById('sprite');
 			const treeArray = [];
@@ -89,7 +100,15 @@
 			var frameCtr = 0;
 			var fireballSpeed = -5;
 			var fireballs = {};
+			var gameTick = 0;
 			(function gameLoop() {
+				if (restart) {
+					overlay.innerText = 'You win!';
+					overlay.innerText = 'You win!';
+					frameCtr = 0;
+					gameTick = 0;
+					restart = false;
+				}
 				fireballs = document.getElementsByClassName('fireball');
 				frameCtr++;
 				//check to see if we were hit by a fireball
@@ -191,10 +210,30 @@
 				}
 
 				// creating more fireballs
-				if (frameCtr % 50 === 0) {
-					// (speed, spawnx, spawny, vector)
-					// 0-360, increments of 45
-					createFireball(10, 500, 400, (frameCtr / 50) * 45 - 45);
+				if (frameCtr % 10 === 0) {
+					gameTick >= 10 &&
+						gameTick < 20 &&
+						createFireball(10, (gameTick % 10) * 100, 1000, 270);
+					gameTick >= 20 &&
+						gameTick <= 30 &&
+						createFireball(10, 1000 - (gameTick % 20) * 100, 1000, 270);
+					gameTick >= 40 &&
+						gameTick < 50 &&
+						createFireball(10, (gameTick % 40) * 100, 1000, 270);
+					gameTick >= 50 &&
+						gameTick <= 60 &&
+						createFireball(10, 1000 - (gameTick % 50) * 100, 1000, 270);
+					gameTick >= 70 &&
+						gameTick < 80 &&
+						createFireball(10, (gameTick % 70) * 100, 1000, 270);
+					gameTick >= 80 &&
+						gameTick <= 90 &&
+						createFireball(10, 1000 - (gameTick % 80) * 100, 1000, 270);
+
+					gameTick > 100 && (overlay.style.visibility = 'visible');
+					gameTick > 100 && (winLose.innerText = 'You win!');
+					gameTick > 100 && (endScore.innerText = 'Final Score: 99');
+					gameTick++;
 				}
 
 				document.getElementById('sprite').style.left = x + 'px';
