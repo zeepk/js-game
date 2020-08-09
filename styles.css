@@ -13,7 +13,6 @@ body {
 	right: auto;
 	bottom: auto;
 	visibility: visible;
-	/* z-index: 1000; */
 }
 #canvas {
 	margin: auto;
