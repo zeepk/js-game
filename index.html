@@ -15,156 +15,192 @@
 		</div>
 		<script>
 			const randomInt = (min, max) => {
-				return Math.random() * (max - min) + min
-			}
-			const speed = 20
-			const treeCount = 20
-			const fireballCount = 5
-			const width = document.getElementById('canvas').clientWidth
-			const height = document.getElementById('canvas').clientHeight
-			const bodyWidth = document.getElementById('body').clientWidth
-			const bodyHeight = document.getElementById('body').clientHeight
+				return Math.random() * (max - min) + min;
+			};
+			const speed = 20;
+			const treeCount = 20;
+			const fireballCount = 5;
+			const fireballLifetime = 2000;
+			const width = document.getElementById('canvas').clientWidth;
+			const height = document.getElementById('canvas').clientHeight;
+			const bodyWidth = document.getElementById('body').clientWidth;
+			const bodyHeight = document.getElementById('body').clientHeight;
 
-			const sprite = document.getElementById('sprite')
-			const treeArray = []
-			var keyState = {}
-			const canvas = document.getElementById('canvas').getBoundingClientRect()
-			const fireballArray = []
+			const sprite = document.getElementById('sprite');
+			const treeArray = [];
+			var keyState = {};
+			const canvas = document.getElementById('canvas').getBoundingClientRect();
+			const fireballArray = [];
 
 			// TODO: have create accept/use speed, spawn coords and vector coords
-			const createFireball = (speed, spawnx, spawny, vectorx, vectory) => {
-				const fireball = document.createElement('img')
-				fireball.className = 'fireball'
+			const createFireball = (speed, spawnX, spawnY, vector) => {
+				const fireball = document.createElement('img');
+				fireball.className = 'fireball';
 				fireball.src =
-					'https://thumbs.gfycat.com/SlipperyObedientBasil-max-1mb.gif'
-				fireball.style.left = randomInt(canvas.left, canvas.right - 100) + 'px'
-				fireball.style.top = randomInt(canvas.top, canvas.bottom - 100) + 'px'
-				document.getElementById('body').appendChild(fireball)
-				const fireballRect = fireball.getBoundingClientRect()
+					'https://thumbs.gfycat.com/SlipperyObedientBasil-max-1mb.gif';
+				fireball.style.left = canvas.left + spawnX + 'px';
+				fireball.style.top = canvas.bottom - 50 - spawnY + 'px';
+				document.getElementById('body').appendChild(fireball);
+				const fireballRect = fireball.getBoundingClientRect();
 				fireballArray.push({
 					left: fireballRect.left,
 					right: fireballRect.right,
 					top: fireballRect.top,
 					bottom: fireballRect.bottom,
-				})
-			}
+					speed,
+					vector,
+				});
+				setTimeout(() => {
+					fireball.remove();
+					fireballArray.shift();
+				}, fireballLifetime);
+			};
 
-			// document.getElementById('canvas').style.width = width + 'px';
-			// document.getElementById('canvas').style.height = height + 'px';
 			window.addEventListener(
 				'keydown',
 				function (e) {
-					keyState[e.keyCode || e.which] = true
+					keyState[e.keyCode || e.which] = true;
 				},
 				true
-			)
+			);
 
 			window.addEventListener(
 				'keyup',
 				function (e) {
-					keyState[e.keyCode || e.which] = false
+					keyState[e.keyCode || e.which] = false;
 				},
 				true
-			)
+			);
 			// creating trees
 			for (var i = 0; i < treeCount; i++) {
-				const tree = document.createElement('img')
-				tree.className = 'tree'
-				tree.src = 'assets/props_tree_goup.png'
-				tree.style.left = randomInt(canvas.left, canvas.right - 100) + 'px'
-				tree.style.top = randomInt(canvas.top, canvas.bottom - 100) + 'px'
-				treeArray.push(tree)
-				document.getElementById('body').appendChild(tree)
+				const tree = document.createElement('img');
+				tree.className = 'tree';
+				tree.src = 'assets/props_tree_goup.png';
+				tree.style.left = randomInt(canvas.left, canvas.right - 100) + 'px';
+				tree.style.top = randomInt(canvas.top, canvas.bottom - 100) + 'px';
+				treeArray.push(tree);
+				document.getElementById('body').appendChild(tree);
 			}
-			var x = width / 2
-			var y = height / 2
-			var hit = false
-			var prevHit = false
-			var frozen = false
-			var frameCtr = 0
-			var fireballSpeed = -10
-			var fireballs = {}
-			;(function gameLoop() {
-				fireballs = document.getElementsByClassName('fireball')
-				frameCtr++
+			var x = width / 2;
+			var y = height / 2;
+			var hit = false;
+			var prevHit = false;
+			var frozen = false;
+			var frameCtr = 0;
+			var fireballSpeed = -5;
+			var fireballs = {};
+			(function gameLoop() {
+				fireballs = document.getElementsByClassName('fireball');
+				frameCtr++;
 				//check to see if we were hit by a fireball
-				prevHit = hit
-				hit = false
+				prevHit = hit;
+				hit = false;
+
 				fireballArray.forEach((fireball, index) => {
-					var left = randomInt(fireballSpeed, 0)
-					var top = randomInt(fireballSpeed, 0)
-					if (index % 4 === 0) {
-						left = Math.abs(left)
-					} else if (index % 3 === 0) {
-						left = Math.abs(left)
-						top = Math.abs(top)
-					} else if (index % 2 === 0) {
-						top = Math.abs(top)
+					var speed = 0 - fireball.speed;
+					var left = speed;
+					var top = speed;
+					const vector =
+						fireball.vector > 360 ? fireball.vector % 360 : fireball.vector;
+
+					switch (vector) {
+						case 0:
+						case 360:
+							top = 0;
+							left = Math.abs(left);
+							break;
+						case 45:
+							left = Math.abs(left);
+							break;
+						case 90:
+							left = 0;
+							break;
+						case 135:
+							break;
+						case 180:
+							top = 0;
+							break;
+						case 225:
+							top = Math.abs(top);
+							break;
+						case 270:
+							left = 0;
+							top = Math.abs(top);
+							break;
+						case 315:
+							left = Math.abs(left);
+							top = Math.abs(top);
+							break;
+						default:
+							break;
 					}
-					fireball.left += left
-					fireball.right += left
-					fireball.top += top
-					fireball.bottom += top
-					fireballs[index].style.left = fireball.left + 'px'
-					fireballs[index].style.top = fireball.top + 'px'
+					fireball.left += left;
+					fireball.right += left;
+					fireball.top += top;
+					fireball.bottom += top;
+					fireballs[index].style.left = fireball.left + 'px';
+					fireballs[index].style.top = fireball.top + 'px';
 					if (
 						((x <= fireball.left && fireball.left <= x + 100) ||
 							(x <= fireball.right && fireball.right <= x + 100)) &&
 						((y <= fireball.top && fireball.top <= y + 100) ||
 							(y <= fireball.bottom && fireball.bottom <= y + 100))
 					) {
-						hit = true
+						hit = true;
 					}
-				})
+				});
 				if (hit && !prevHit) {
-					frozen = true
-					sprite.style.visibility = 'hidden'
+					frozen = true;
+					sprite.style.visibility = 'hidden';
 					setTimeout(() => {
-						sprite.style.visibility = 'visible'
+						sprite.style.visibility = 'visible';
 						setTimeout(() => {
-							sprite.style.visibility = 'hidden'
+							sprite.style.visibility = 'hidden';
 							setTimeout(() => {
-								sprite.style.visibility = 'visible'
-								frozen = false
-							}, 100)
-						}, 100)
-					}, 100)
+								sprite.style.visibility = 'visible';
+								frozen = false;
+							}, 100);
+						}, 100);
+					}, 100);
 				}
 
 				// move, as long as we aren't frozen/hit
 				if (!frozen) {
 					if ((keyState[37] || keyState[65]) && x > canvas.left) {
 						// left
-						x -= speed
+						x -= speed;
 					}
 					if (
 						(keyState[39] || keyState[68]) &&
 						x < canvas.right - sprite.clientWidth
 					) {
 						// right
-						x += speed
+						x += speed;
 					}
 					if ((keyState[38] || keyState[87]) && y > canvas.top) {
 						// up
-						y -= speed
+						y -= speed;
 					}
 					if (
 						(keyState[40] || keyState[83]) &&
 						y < canvas.bottom - sprite.clientHeight
 					) {
 						// down
-						y += speed
+						y += speed;
 					}
 				}
-				if (frameCtr % 100 === 0) {
-					console.log('Create at ' + frameCtr)
-					createFireball(0)
+
+				// creating more fireballs
+				if (frameCtr % 50 === 0) {
+					// (speed, spawnx, spawny, vector)
+					// 0-360, increments of 45
+					createFireball(10, 500, 400, (frameCtr / 50) * 45 - 45);
 				}
 
-				document.getElementById('sprite').style.left = x + 'px'
-				document.getElementById('sprite').style.top = y + 'px'
-				setTimeout(gameLoop, 10)
-			})()
+				document.getElementById('sprite').style.left = x + 'px';
+				document.getElementById('sprite').style.top = y + 'px';
+				setTimeout(gameLoop, 10);
+			})();
 		</script>
 	</body>
 </html>
