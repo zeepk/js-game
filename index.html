@@ -112,6 +112,7 @@
 			var gameOver = false;
 			const livesDisplay = document.getElementById('lives');
 			const scoreDisplay = document.getElementById('score');
+			var score = 0;
 			(function gameLoop() {
 				if (restart) {
 					overlay.style.visibility = 'hidden';
@@ -120,6 +121,7 @@
 					lifeCount = lives;
 					restart = false;
 					gameOver = false;
+					score = 0;
 				}
 				fireballs = document.getElementsByClassName('fireball');
 				frameCtr++;
@@ -225,7 +227,7 @@
 
 				// creating more fireballs
 				if (frameCtr % 10 === 0) {
-					scoreDisplay.innerText = `Score: ${gametick}`;
+					scoreDisplay.innerText = `Score: ${score}`;
 					livesDisplay.innerText = `Lives: ${lifeCount}`;
 					if (gametick >= 20 && gametick <= 24) {
 						createFireball(10, 1000 - (gametick % 20) * 300, 1000, 270);
@@ -348,12 +350,18 @@
 						createFireball(10, 500, 400, 360);
 					}
 
-					if (gameOver || gametick >= 220) {
+					if (gameOver || score >= 220) {
 						overlay.style.visibility = 'visible';
-						winLose.innerText = gametick >= 220 ? 'You won!' : 'You died...';
-						endScore.innerText = `Final Score: ${gametick + lifeCount * 10}`;
+						winLose.innerText = score >= 220 ? 'You won!' : 'You died...';
+						if (lifeCount === lives) {
+							winLose.innerText = 'Perfect game!';
+						}
+						lifeCount = lifeCount <= 0 ? 0 : lifeCount;
+						endScore.innerText = `Final Score: ${score + lifeCount * 10}`;
+						gametick = -1;
 					} else {
 						gametick++;
+						score++;
 					}
 				}
 
