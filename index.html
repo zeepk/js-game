@@ -7,11 +7,16 @@
 	</head>
 	<body id="body">
 		<div id="canvas">
-			<div id="toolbar"></div>
+			<div id="toolbar">
+				<span id="lives"></span>
+				<span id="score"></span>
+			</div>
 			<div id="overlay">
 				<div id="win-lose"></div>
 				<div id="end-score"></div>
-				<button id="playAgain" onclick="playAgain()">Play Again</button>
+				<div id="playAgainContainer">
+					<button id="playAgain" onclick="playAgain()">Play Again</button>
+				</div>
 			</div>
 			<img
 				src="https://www.piskelapp.com/static/resources/home/features/feature-open-source@2x.gif"
@@ -28,7 +33,7 @@
 				return Math.random() * (max - min) + min;
 			};
 			var restart = false;
-			const lives = 999;
+			const lives = 3;
 			const speed = 20;
 			const treeCount = 20;
 			const fireballLifetime = 2000;
@@ -102,15 +107,17 @@
 			var frameCtr = 0;
 			var fireballSpeed = -5;
 			var fireballs = {};
-			var gameTick = 0;
-			var deaths = 0;
+			var gametick = 0;
+			var lifeCount = lives;
 			var gameOver = false;
+			const livesDisplay = document.getElementById('lives');
+			const scoreDisplay = document.getElementById('score');
 			(function gameLoop() {
 				if (restart) {
 					overlay.style.visibility = 'hidden';
 					frameCtr = 0;
-					gameTick = 0;
-					deaths = 0;
+					gametick = 0;
+					lifeCount = lives;
 					restart = false;
 					gameOver = false;
 				}
@@ -174,8 +181,8 @@
 					}
 				});
 				if (hit && !prevHit) {
-					deaths++;
-					deaths === lives && (gameOver = true);
+					lifeCount--;
+					lifeCount === 0 && (gameOver = true);
 					frozen = true;
 					sprite.style.visibility = 'hidden';
 					setTimeout(() => {
@@ -218,139 +225,135 @@
 
 				// creating more fireballs
 				if (frameCtr % 10 === 0) {
-					console.log(gameTick % 68);
-					if (gameTick >= 20 && gameTick <= 24) {
-						createFireball(10, 1000 - (gameTick % 20) * 300, 1000, 270);
+					scoreDisplay.innerText = `Score: ${gametick}`;
+					livesDisplay.innerText = `Lives: ${lifeCount}`;
+					if (gametick >= 20 && gametick <= 24) {
+						createFireball(10, 1000 - (gametick % 20) * 300, 1000, 270);
 					}
 
-					if (gameTick > 50 && gameTick <= 54) {
-						createFireball(10, 1000 - (gameTick % 50) * 300, 1000, 270);
+					if (gametick > 50 && gametick <= 54) {
+						createFireball(10, 1000 - (gametick % 50) * 300, 1000, 270);
 					}
-					if (gameTick > 55 && gameTick <= 59) {
-						createFireball(10, (gameTick % 55) * 300, 1000, 270);
+					if (gametick > 55 && gametick <= 59) {
+						createFireball(10, (gametick % 55) * 300, 1000, 270);
 					}
-					if (gameTick === 70) {
-						createFireball(10, 200, 1000, 270);
-						createFireball(10, 400, 1000, 270);
+					if (gametick === 70) {
+						createFireball(10, 0, 1000, 270);
+						createFireball(10, 300, 1000, 270);
 						createFireball(10, 600, 1000, 270);
-						createFireball(10, 800, 1000, 270);
+						createFireball(10, 900, 1000, 270);
 					}
 
-					if (gameTick > 80 && gameTick <= 84) {
-						createFireball(10, 1000 - (gameTick % 80) * 300, 1000, 270);
+					if (gametick > 80 && gametick <= 84) {
+						createFireball(10, 1000 - (gametick % 80) * 300, 1000, 270);
 					}
-					if (gameTick > 85 && gameTick <= 89) {
-						createFireball(10, (gameTick % 85) * 300, 1000, 270);
+					if (gametick > 85 && gametick <= 89) {
+						createFireball(10, (gametick % 85) * 300, 1000, 270);
 					}
-					if (gameTick === 100) {
+					if (gametick === 100) {
 						createFireball(10, 500, 400, 0);
 					}
-					if (gameTick === 103) {
+					if (gametick === 103) {
 						createFireball(10, 500, 400, 45);
 					}
-					if (gameTick === 106) {
+					if (gametick === 106) {
 						createFireball(10, 500, 400, 90);
 					}
-					if (gameTick === 109) {
+					if (gametick === 109) {
 						createFireball(10, 500, 400, 135);
 					}
-					if (gameTick === 112) {
+					if (gametick === 112) {
 						createFireball(10, 500, 400, 180);
 					}
-					if (gameTick === 115) {
+					if (gametick === 115) {
 						createFireball(10, 500, 400, 225);
 					}
-					if (gameTick === 118) {
+					if (gametick === 118) {
 						createFireball(10, 500, 400, 270);
 					}
-					if (gameTick === 121) {
+					if (gametick === 121) {
 						createFireball(10, 500, 400, 315);
 					}
-					if (gameTick === 124) {
+					if (gametick === 124) {
 						createFireball(10, 500, 400, 360);
 					}
-					if (gameTick === 140) {
+					if (gametick === 140) {
 						createFireball(10, 0, -200, 90);
-						createFireball(10, 200, -200, 90);
-						createFireball(10, 400, -200, 90);
+						createFireball(10, 300, -200, 90);
 						createFireball(10, 600, -200, 90);
-						createFireball(10, 800, -200, 90);
-						createFireball(10, 1000, -200, 90);
+						createFireball(10, 900, -200, 90);
 					}
-					if (gameTick === 150) {
+					if (gametick === 150) {
 						createFireball(10, 500, 400, 0);
 					}
-					if (gameTick === 152) {
+					if (gametick === 152) {
 						createFireball(10, 500, 400, 45);
 					}
-					if (gameTick === 154) {
+					if (gametick === 154) {
 						createFireball(10, 500, 400, 90);
 					}
-					if (gameTick === 156) {
+					if (gametick === 156) {
 						createFireball(10, 500, 400, 135);
 					}
-					if (gameTick === 158) {
+					if (gametick === 158) {
 						createFireball(10, 500, 400, 180);
 					}
-					if (gameTick === 160) {
+					if (gametick === 160) {
 						createFireball(10, 500, 400, 225);
 					}
-					if (gameTick === 162) {
+					if (gametick === 162) {
 						createFireball(10, 500, 400, 270);
 					}
-					if (gameTick === 164) {
+					if (gametick === 164) {
 						createFireball(10, 500, 400, 315);
 					}
-					if (gameTick === 166) {
+					if (gametick === 166) {
 						createFireball(10, 500, 400, 360);
 					}
-					if (gameTick === 176) {
+					if (gametick === 176) {
 						createFireball(20, -200, 0, 0);
-						createFireball(20, -200, 200, 0);
-						createFireball(20, -200, 400, 0);
+						createFireball(20, -200, 300, 0);
 						createFireball(20, -200, 600, 0);
-						createFireball(20, -200, 800, 0);
 					}
-					if (gameTick === 190) {
+					if (gametick === 190) {
 						createFireball(20, 1200, 100, 180);
-						createFireball(20, 1200, 300, 180);
-						createFireball(20, 1200, 500, 180);
+						createFireball(20, 1200, 400, 180);
 						createFireball(20, 1200, 700, 180);
 					}
-					if (gameTick === 201) {
+					if (gametick === 201) {
 						createFireball(10, 500, 400, 0);
 					}
-					if (gameTick === 202) {
+					if (gametick === 202) {
 						createFireball(10, 500, 400, 45);
 					}
-					if (gameTick === 203) {
+					if (gametick === 203) {
 						createFireball(10, 500, 400, 90);
 					}
-					if (gameTick === 204) {
+					if (gametick === 204) {
 						createFireball(10, 500, 400, 135);
 					}
-					if (gameTick === 205) {
+					if (gametick === 205) {
 						createFireball(10, 500, 400, 180);
 					}
-					if (gameTick === 206) {
+					if (gametick === 206) {
 						createFireball(10, 500, 400, 225);
 					}
-					if (gameTick === 207) {
+					if (gametick === 207) {
 						createFireball(10, 500, 400, 270);
 					}
-					if (gameTick === 208) {
+					if (gametick === 208) {
 						createFireball(10, 500, 400, 315);
 					}
-					if (gameTick === 209) {
+					if (gametick === 209) {
 						createFireball(10, 500, 400, 360);
 					}
 
-					if (gameOver) {
+					if (gameOver || gametick >= 220) {
 						overlay.style.visibility = 'visible';
-						winLose.innerText = 'You died...';
-						endScore.innerText = `Final Score: ${gameTick}`;
+						winLose.innerText = gametick >= 220 ? 'You won!' : 'You died...';
+						endScore.innerText = `Final Score: ${gametick + lifeCount * 10}`;
 					} else {
-						gameTick++;
+						gametick++;
 					}
 				}
 
