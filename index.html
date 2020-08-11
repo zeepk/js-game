@@ -21,38 +21,40 @@
 		</div>
 		<script>
 			const playAgain = () => {
-				restart = true
-			}
+				console.log('play again');
+				restart = true;
+			};
 			const randomInt = (min, max) => {
-				return Math.random() * (max - min) + min
-			}
-			var restart = false
-			const speed = 20
-			const treeCount = 20
-			const fireballLifetime = 2000
-			const width = document.getElementById('canvas').clientWidth
-			const height = document.getElementById('canvas').clientHeight
-			const bodyWidth = document.getElementById('body').clientWidth
-			const bodyHeight = document.getElementById('body').clientHeight
-			const winLose = document.getElementById('win-lose')
-			const endScore = document.getElementById('end-score')
+				return Math.random() * (max - min) + min;
+			};
+			var restart = false;
+			const lives = 999;
+			const speed = 20;
+			const treeCount = 20;
+			const fireballLifetime = 2000;
+			const width = document.getElementById('canvas').clientWidth;
+			const height = document.getElementById('canvas').clientHeight;
+			const bodyWidth = document.getElementById('body').clientWidth;
+			const bodyHeight = document.getElementById('body').clientHeight;
+			const winLose = document.getElementById('win-lose');
+			const endScore = document.getElementById('end-score');
 
-			const sprite = document.getElementById('sprite')
-			const treeArray = []
-			var keyState = {}
-			const canvas = document.getElementById('canvas').getBoundingClientRect()
-			const fireballArray = []
+			const sprite = document.getElementById('sprite');
+			const treeArray = [];
+			var keyState = {};
+			const canvas = document.getElementById('canvas').getBoundingClientRect();
+			const fireballArray = [];
 
 			// TODO: have create accept/use speed, spawn coords and vector coords
 			const createFireball = (speed, spawnX, spawnY, vector) => {
-				const fireball = document.createElement('img')
-				fireball.className = 'fireball'
+				const fireball = document.createElement('img');
+				fireball.className = 'fireball';
 				fireball.src =
-					'https://thumbs.gfycat.com/SlipperyObedientBasil-max-1mb.gif'
-				fireball.style.left = canvas.left + spawnX + 'px'
-				fireball.style.top = canvas.bottom - 50 - spawnY + 'px'
-				document.getElementById('body').appendChild(fireball)
-				const fireballRect = fireball.getBoundingClientRect()
+					'https://thumbs.gfycat.com/SlipperyObedientBasil-max-1mb.gif';
+				fireball.style.left = canvas.left + spawnX + 'px';
+				fireball.style.top = canvas.bottom - 50 - spawnY + 'px';
+				document.getElementById('body').appendChild(fireball);
+				const fireballRect = fireball.getBoundingClientRect();
 				fireballArray.push({
 					left: fireballRect.left,
 					right: fireballRect.right,
@@ -60,186 +62,200 @@
 					bottom: fireballRect.bottom,
 					speed,
 					vector,
-				})
+				});
 				setTimeout(() => {
-					fireball.remove()
-					fireballArray.shift()
-				}, fireballLifetime)
-			}
+					fireball.remove();
+					fireballArray.shift();
+				}, fireballLifetime);
+			};
 
 			window.addEventListener(
 				'keydown',
 				function (e) {
-					keyState[e.keyCode || e.which] = true
+					keyState[e.keyCode || e.which] = true;
 				},
 				true
-			)
+			);
 
 			window.addEventListener(
 				'keyup',
 				function (e) {
-					keyState[e.keyCode || e.which] = false
+					keyState[e.keyCode || e.which] = false;
 				},
 				true
-			)
+			);
 			// creating trees
 			for (var i = 0; i < treeCount; i++) {
-				const tree = document.createElement('img')
-				tree.className = 'tree'
-				tree.src = 'assets/props_tree_goup.png'
-				tree.style.left = randomInt(canvas.left, canvas.right - 100) + 'px'
-				tree.style.top = randomInt(canvas.top, canvas.bottom - 100) + 'px'
-				treeArray.push(tree)
-				document.getElementById('body').appendChild(tree)
+				const tree = document.createElement('img');
+				tree.className = 'tree';
+				tree.src = 'assets/props_tree_goup.png';
+				tree.style.left = randomInt(canvas.left, canvas.right - 100) + 'px';
+				tree.style.top = randomInt(canvas.top, canvas.bottom - 100) + 'px';
+				treeArray.push(tree);
+				document.getElementById('body').appendChild(tree);
 			}
-			var x = width / 2
-			var y = height / 2
-			var hit = false
-			var prevHit = false
-			var frozen = false
-			var frameCtr = 0
-			var fireballSpeed = -5
-			var fireballs = {}
-			var gameTick = 0
-			;(function gameLoop() {
+			var x = width / 2;
+			var y = height / 2;
+			var hit = false;
+			var prevHit = false;
+			var frozen = false;
+			var frameCtr = 0;
+			var fireballSpeed = -5;
+			var fireballs = {};
+			var gameTick = 0;
+			var deaths = 0;
+			var gameOver = false;
+			(function gameLoop() {
 				if (restart) {
-					overlay.innerText = 'You win!'
-					overlay.innerText = 'You win!'
-					frameCtr = 0
-					gameTick = 0
-					restart = false
+					overlay.style.visibility = 'hidden';
+					frameCtr = 0;
+					gameTick = 0;
+					deaths = 0;
+					restart = false;
+					gameOver = false;
 				}
-				fireballs = document.getElementsByClassName('fireball')
-				frameCtr++
+				fireballs = document.getElementsByClassName('fireball');
+				frameCtr++;
 				//check to see if we were hit by a fireball
-				prevHit = hit
-				hit = false
+				prevHit = hit;
+				hit = false;
 
 				fireballArray.forEach((fireball, index) => {
-					var speed = 0 - fireball.speed
-					var left = speed
-					var top = speed
+					var speed = 0 - fireball.speed;
+					var left = speed;
+					var top = speed;
 					const vector =
-						fireball.vector > 360 ? fireball.vector % 360 : fireball.vector
+						fireball.vector > 360 ? fireball.vector % 360 : fireball.vector;
 					// deciding which way to go
 					switch (vector) {
 						case 0:
 						case 360:
-							top = 0
-							left = Math.abs(left)
-							break
+							top = 0;
+							left = Math.abs(left);
+							break;
 						case 45:
-							left = Math.abs(left)
-							break
+							left = Math.abs(left);
+							break;
 						case 90:
-							left = 0
-							break
+							left = 0;
+							break;
 						case 135:
-							break
+							break;
 						case 180:
-							top = 0
-							break
+							top = 0;
+							break;
 						case 225:
-							top = Math.abs(top)
-							break
+							top = Math.abs(top);
+							break;
 						case 270:
-							left = 0
-							top = Math.abs(top)
-							break
+							left = 0;
+							top = Math.abs(top);
+							break;
 						case 315:
-							left = Math.abs(left)
-							top = Math.abs(top)
-							break
+							left = Math.abs(left);
+							top = Math.abs(top);
+							break;
 						default:
-							break
+							break;
 					}
-					fireball.left += left
-					fireball.right += left
-					fireball.top += top
-					fireball.bottom += top
-					fireballs[index].style.left = fireball.left + 'px'
-					fireballs[index].style.top = fireball.top + 'px'
+					fireball.left += left;
+					fireball.right += left;
+					fireball.top += top;
+					fireball.bottom += top;
+					fireballs[index].style.left = fireball.left + 'px';
+					fireballs[index].style.top = fireball.top + 'px';
 					if (
 						((x <= fireball.left && fireball.left <= x + 100) ||
 							(x <= fireball.right && fireball.right <= x + 100)) &&
 						((y <= fireball.top && fireball.top <= y + 100) ||
 							(y <= fireball.bottom && fireball.bottom <= y + 100))
 					) {
-						hit = true
+						hit = true;
 					}
-				})
+				});
 				if (hit && !prevHit) {
-					frozen = true
-					sprite.style.visibility = 'hidden'
+					deaths++;
+					deaths === lives && (gameOver = true);
+					frozen = true;
+					sprite.style.visibility = 'hidden';
 					setTimeout(() => {
-						sprite.style.visibility = 'visible'
+						sprite.style.visibility = 'visible';
 						setTimeout(() => {
-							sprite.style.visibility = 'hidden'
+							sprite.style.visibility = 'hidden';
 							setTimeout(() => {
-								sprite.style.visibility = 'visible'
-								frozen = false
-							}, 100)
-						}, 100)
-					}, 100)
+								sprite.style.visibility = 'visible';
+								frozen = false;
+							}, 100);
+						}, 100);
+					}, 100);
 				}
 
 				// move, as long as we aren't frozen/hit
 				if (!frozen) {
 					if ((keyState[37] || keyState[65]) && x > canvas.left) {
 						// left
-						x -= speed
+						x -= speed;
 					}
 					if (
 						(keyState[39] || keyState[68]) &&
 						x < canvas.right - sprite.clientWidth
 					) {
 						// right
-						x += speed
+						x += speed;
 					}
 					if ((keyState[38] || keyState[87]) && y > canvas.top) {
 						// up
-						y -= speed
+						y -= speed;
 					}
 					if (
 						(keyState[40] || keyState[83]) &&
 						y < canvas.bottom - sprite.clientHeight
 					) {
 						// down
-						y += speed
+						y += speed;
 					}
 				}
 
 				// creating more fireballs
 				if (frameCtr % 10 === 0) {
-					gameTick >= 10 &&
-						gameTick < 20 &&
-						createFireball(10, (gameTick % 10) * 100, 1000, 270)
-					gameTick >= 20 &&
-						gameTick <= 30 &&
-						createFireball(10, 1000 - (gameTick % 20) * 100, 1000, 270)
-					gameTick >= 40 &&
-						gameTick < 50 &&
-						createFireball(10, (gameTick % 40) * 100, 1000, 270)
-					gameTick >= 50 &&
-						gameTick <= 60 &&
-						createFireball(10, 1000 - (gameTick % 50) * 100, 1000, 270)
-					gameTick >= 70 &&
-						gameTick < 80 &&
-						createFireball(10, (gameTick % 70) * 100, 1000, 270)
-					gameTick >= 80 &&
-						gameTick <= 90 &&
-						createFireball(10, 1000 - (gameTick % 80) * 100, 1000, 270)
+					console.log(gameTick % 68);
+					if (gameTick >= 20 && gameTick <= 24) {
+						createFireball(10, 1000 - (gameTick % 20) * 300, 1000, 270);
+					}
 
-					gameTick > 100 && (overlay.style.visibility = 'visible')
-					gameTick > 100 && (winLose.innerText = 'You win!')
-					gameTick > 100 && (endScore.innerText = 'Final Score: 99')
-					gameTick++
+					if (gameTick > 50 && gameTick <= 54) {
+						createFireball(10, 1000 - (gameTick % 50) * 300, 1000, 270);
+					}
+					if (gameTick > 55 && gameTick <= 59) {
+						createFireball(10, (gameTick % 55) * 300, 1000, 270);
+					}
+					if (gameTick === 70) {
+						createFireball(10, 200, 1000, 270);
+						createFireball(10, 400, 1000, 270);
+						createFireball(10, 600, 1000, 270);
+						createFireball(10, 800, 1000, 270);
+					}
+
+					if (gameTick > 80 && gameTick <= 84) {
+						createFireball(10, 1000 - (gameTick % 80) * 300, 1000, 270);
+					}
+					if (gameTick > 85 && gameTick <= 89) {
+						createFireball(10, (gameTick % 85) * 300, 1000, 270);
+					}
+
+					if (gameOver) {
+						overlay.style.visibility = 'visible';
+						winLose.innerText = 'You died...';
+						endScore.innerText = `Final Score: ${gameTick}`;
+					} else {
+						gameTick++;
+					}
 				}
 
-				document.getElementById('sprite').style.left = x + 'px'
-				document.getElementById('sprite').style.top = y + 'px'
-				setTimeout(gameLoop, 10)
-			})()
+				document.getElementById('sprite').style.left = x + 'px';
+				document.getElementById('sprite').style.top = y + 'px';
+				setTimeout(gameLoop, 10);
+			})();
 		</script>
 	</body>
 </html>
